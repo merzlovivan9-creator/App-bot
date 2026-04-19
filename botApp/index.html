@@ -3,200 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Ghost Hunter</title>
+    <title>Ghost Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --main-green: #1b3a1e;
+            --light-green: #2d5a27;
+            --accent-glow: rgba(76, 175, 80, 0.5);
+        }
+
         body {
             margin: 0; padding: 0;
             background: url('bg.jpg') no-repeat center center fixed;
             background-size: cover;
             height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
             font-family: 'Press Start 2P', cursive;
-            color: white; overflow: hidden;
-        }
-
-        /* Экран Босса */
-        #game-screen {
+            color: white;
             display: flex; flex-direction: column; align-items: center;
-            width: 100%; height: 100%;
         }
 
-        #score-container { margin-top: 30px; font-size: 18px; text-shadow: 2px 2px black; }
-
-        /* Полоска здоровья */
-        .hp-bar-bg {
-            width: 80%; height: 20px; background: #333;
-            border: 3px solid #000; margin-top: 20px; position: relative;
+        /* Заголовок счета */
+        #header {
+            margin-top: 40px;
+            text-align: center;
         }
-        .hp-bar-fill {
-            width: 100%; height: 100%; background: linear-gradient(to right, #ff4e50, #f9d423);
-            transition: width 0.2s;
+        .score-label { font-size: 24px; text-shadow: 3px 3px 0px #000; }
+        .score-num { 
+            display: inline-block; background: #fff; color: #000; 
+            padding: 5px 10px; border: 4px solid #000; margin-left: 10px;
         }
-        .hp-text { position: absolute; width: 100%; text-align: center; font-size: 10px; top: 5px; }
+        
+        /* Полоска здоровья (как на фото) */
+        .hp-container {
+            width: 70%; margin-top: 20px; text-align: center;
+        }
+        .hp-bar {
+            width: 100%; height: 8px; background: #333;
+            border: 2px solid #000; position: relative; margin-bottom: 5px;
+        }
+        #hp-fill {
+            width: 100%; height: 100%; background: #ff4500; /* Оранжево-красный как на фото */
+            box-shadow: 0 0 10px #ff4500; transition: width 0.2s;
+        }
+        .hp-label { font-size: 10px; text-shadow: 1px 1px #000; }
 
+        /* Центральный Босс */
+        #boss-container {
+            flex-grow: 1; display: flex; align-items: center; justify-content: center;
+            width: 100%;
+        }
         #ghost-btn {
-            background: none; border: none; outline: none; margin-top: 50px;
-            transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
+            background: none; border: none; outline: none; cursor: pointer;
+            transition: transform 0.05s; -webkit-tap-highlight-color: transparent;
         }
-        #ghost-btn img { width: 70vw; max-width: 350px; }
+        #ghost-btn img { width: 75vw; max-width: 400px; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)); }
         #ghost-btn:active { transform: scale(0.95); }
 
         /* Экран Магазина */
         #shop-screen {
-            display: none; /* Скрыт по умолчанию */
-            width: 100%; height: 80%;
-            background: rgba(0, 40, 0, 0.9); /* Темно-зеленый полупрозрачный */
-            padding-top: 20px; overflow-y: auto;
+            display: none; position: absolute; top: 100px; bottom: 120px;
+            width: 90%; background: rgba(13, 33, 13, 0.95);
+            border: 3px solid var(--light-green); border-radius: 20px;
+            padding: 15px; overflow-y: auto; z-index: 10;
         }
         .shop-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
         }
         .item-card {
-            background: #2d5a27; border: 2px solid #fff; border-radius: 10px;
-            padding: 5px; display: flex; flex-direction: column; align-items: center; text-align: center;
+            background: #e8f5e9; border-radius: 12px; padding: 8px;
+            display: flex; flex-direction: column; align-items: center; color: #1b3a1e;
         }
-        .item-card img { width: 50px; height: 50px; margin-bottom: 5px; }
-        .item-card span { font-size: 7px; margin-bottom: 5px; }
+        .item-card img { width: 100%; max-width: 60px; margin-bottom: 5px; }
+        .item-card .price { font-size: 6px; font-weight: bold; margin-bottom: 5px; text-align: center; }
         .item-card button {
-            font-family: 'Press Start 2P'; font-size: 6px; padding: 5px;
-            background: #f8b500; border: none; cursor: pointer;
+            background: #2d5a27; color: white; border: none; border-radius: 5px;
+            font-family: 'Press Start 2P'; font-size: 5px; padding: 5px; width: 100%;
         }
 
-        /* Нижнее меню */
-        .bottom-nav {
-            position: fixed; bottom: 20px; display: flex; gap: 20px;
+        /* Нижнее меню (Navigation) */
+        .nav-bar {
+            position: fixed; bottom: 30px; display: flex; gap: 15px;
+            background: rgba(0, 20, 0, 0.7); padding: 10px 20px; border-radius: 25px;
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2);
         }
         .nav-btn {
-            background: #1a3a1a; border: 2px solid #fff; color: white;
-            padding: 15px 25px; font-family: 'Press Start 2P'; font-size: 12px;
-            border-radius: 10px; cursor: pointer;
+            background: linear-gradient(180deg, #2c4c2e 0%, #162b18 100%);
+            border: 1px solid rgba(255,255,255,0.3); color: white;
+            padding: 12px 25px; font-family: 'Press Start 2P'; font-size: 14px;
+            border-radius: 15px; cursor: pointer; transition: 0.3s;
         }
-        .nav-btn.active { background: #2d5a27; box-shadow: 0 0 10px #fff; }
+        .nav-btn.active {
+            background: #3e7a3e; box-shadow: 0 0 15px var(--accent-glow);
+            border-color: #fff;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Игровой экран -->
-    <div id="game-screen">
-        <div id="score-container">Кликов: <span id="score">0</span></div>
-        
-        <div class="hp-bar-bg">
-            <div id="hp-fill" class="hp-bar-fill"></div>
-            <div class="hp-text">Здоровье: <span id="hp-val">10000</span></div>
+    <!-- Основной экран игры -->
+    <div id="game-screen" style="display: contents;">
+        <div id="header">
+            <span class="score-label">Кликов:</span>
+            <div class="score-num" id="score">0</div>
         </div>
 
-        <button id="ghost-btn">
-            <img src="ghost.png" alt="Ghost">
-        </button>
+        <div class="hp-container">
+            <div class="hp-bar"><div id="hp-fill"></div></div>
+            <div class="hp-label">Здоровье</div>
+        </div>
+    </div id="buff-status" style="height: 15px; margin-top: 10px; font-size: 10px; color: #00ff00; text-shadow: 1px 1px #000;
+    text-align: center;">
+
+        <div id="boss-container">
+            <button id="ghost-btn">
+                <img src="ghost.png" alt="Ghost">
+            </button>
+        </div>
     </div>
 
     <!-- Экран магазина -->
     <div id="shop-screen">
-        <h2 style="text-align:center; font-size: 14px;">МАГАЗИН</h2>
-        <div class="shop-grid">
-            <!-- Пример зелья -->
-            <div class="item-card">
-                <img src="potion_red.png" alt="">
-                <span>Зелье силы (Урон x2) 
-                    Цена: 500</span>
-                <button onclick="buyUpgrade(500, 2, 'power')">КУПИТЬ</button>
-            </div>
-            <!-- Добавь остальные карточки сюда по аналогии -->
-             <div class="item-card">
-                <img src="potion_red.png" alt="">
-                <span>Зелье силы (Урон x3) 
-                    Цена: 1000</span>
-                <button onclick="buyUpgrade(1000, 3, 'power')">КУПИТЬ</button>
-            </div>
-            <div class="item-card">
-                <img src="potion_red.png" alt="">
-                <span>Зелье силы (Урон x4) 
-                    Цена: 1500</span>
-                <button onclick="buyUpgrade(1500, 4, 'power')">КУПИТЬ</button>
-            </div>
-            <div class="item-card">
-                <img src="potion_green.png" alt="">
-                <span>Мега зелье (Урон x10) 
-                    Цена: 5000</span>
-                <button onclick="buyUpgrade(5000, 10, 'power')">КУПИТЬ</button>
-            </div>
+        <div class="shop-grid" id="shop-items">
+            <!-- Сюда добавим товары через JavaScript -->
         </div>
     </div>
 
     <!-- Навигация -->
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="showScreen('game')">Босс</button>
-        <button class="nav-btn" onclick="showScreen('shop')">Магазин</button>
+    <div class="nav-bar">
+        <button id="btn-boss" class="nav-btn active" onclick="switchTab('boss')">Босс</button>
+        <button id="btn-shop" class="nav-btn" onclick="switchTab('shop')">Магазин</button>
     </div>
 
     <script>
         let tg = window.Telegram ? window.Telegram.WebApp : null;
-        // Игровые переменные
-        let score = 0;
-        let damage = 1; // Урон за один клик
-        let bossHp = 10000;
-        let maxHp = 10000;
-
-        const scoreEl = document.getElementById('score');
-        const hpFill = document.getElementById('hp-fill');
-        const hpValEl = document.getElementById('hp-val');
-        const ghostBtn = document.getElementById('ghost-btn');
-
         if (tg) { tg.expand(); tg.ready(); }
 
-        // Клик по боссу
-        ghostBtn.addEventListener('click', () => {
-            score += damage;
-            bossHp -= damage;
+        let score = 0;
+        let damage = 1;
+        let bossMaxHp = 1000;
+        let bossCurrentHp = 1000;
+        let baseDamage = 1; // Постоянный урон
+        let tempMultiplier = 1; // Временный множитель
+        let buffTimer = null; // Переманная для хранения таймера
 
-            if (bossHp <= 0) {
-                alert("Босс побежден! Появился новый, посильнее.");
-                maxHp = Math.floor(maxHp * 1.5);
-                bossHp = maxHp;
-            }
+        // Данные товаров (настрой как в Figma)
+        const items = [
+            { id: 1, name: "Энергетик", price: 500, mult: 2, duration: 30, img: "potion_red.png" },
+            { id: 2, name: "Энергетик", price: 1000, mult: 3, duration: 30, img: "potion_red.png" },
+            { id: 3, name: "Энергетик", price: 1500, mult: 4, duration: 30, img: "potion_red.png" },
+            { id: 4, name: "Зелье силы", price: 5000, mult: 5, duration: 30, img: "item2.png" },
+            { id: 5, name: "Зелье силы", price: 6000, mult: 6, duration: 30, img: "item2.png" },
+            { id: 6, name: "Огромная сила", price: 10000, mult: 10, duration: 30, img: "potion_green.png" }
+        ];
 
-            updateUI();
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        // Рендер магазина
+        const shopGrid = document.getElementById('shop-items');
+        items.forEach(item => {
+            shopGrid.innerHTML += `
+                <div class="item-card">
+                    <img src="${item.img}" alt="">
+                    <div class="price">Купить за ${item.price}</div>
+                    <button onclick="buyItem(${item.price}, ${item.mult})">КУПИТЬ</button>
+                </div>
+            `;
         });
 
-        // Функция покупки
-        function buyUpgrade(price, multiplier, type) {
+        function updateUI() {
+            document.getElementById('score').innerText = Math.floor(score);
+            document.getElementById('hp-fill').style.width = (bossCurrentHp / bossMaxHp * 100) + "%";
+        }
+
+        document.getElementById('ghost-btn').onclick = () => {
+            let totalDamage = baseDamage * tempMultiplier;
+            score += totalDamage;
+            bossCurrentHp -= totalDamage;
+            if (bossCurrentHp <= 0) {
+                bossMaxHp *= 2; bossCurrentHp = bossMaxHp;
+            }
+            updateUI();
+            if (tg) tg.HapticFeedback.impactOccurred('medium');
+        };
+
+        let buffInterval = null; // глобальная переменная для таймера
+
+        function buyItem(price, mult, duration) {
             if (score >= price) {
                 score -= price;
-                if (type === 'power') {
-                    damage *= multiplier;
-                    alert("Урон увеличен! Теперь урон: " + damage);
-                }
+                // если есть активный таймер то убираем его
+                if (buffInterval) clearTimeout(buffInterval);
+
+                // активируем множитель
+                tempMultiplier = mult;
+                let secondsLeft = duration;
+                const statusEl = document.getElementById('buff-status');
+
+                statusEl.innerText = "Усиление x${mult} (${secondsLeft}с)";
+
+                // запускаем таймер обратного отсчета
+                buffInterval = setInterval(() => {
+                    secondsLeft--;
+                    statusEl.innerText = "Усиление x${mult} (${secondsLeft}с)";
+
+                    if (secondsLeft <= 0) {
+                        clearInterval(buffInterval);
+                        tempMultiplier = 1;
+                        statusEl.innerText = ""; // скрываем текст когда время вышло
+                    }
+                }, 1000);
+
                 updateUI();
+                alert("Зелье активировано!");
             } else {
-                alert("Недостаточно кликов!");
+                alert("Мало кликов!");
             }
         }
 
-        // Обновление интерфейса
-        function updateUI() {
-            scoreEl.innerText = Math.floor(score);
-            hpValEl.innerText = bossHp;
-            let hpPercent = (bossHp / maxHp) * 100;
-            hpFill.style.width = hpPercent + "%";
-        }
+        function switchTab(tab) {
+            const game = document.getElementById('game-screen');
+            const shop = document.getElementById('shop-screen');
+            const btnBoss = document.getElementById('btn-boss');
+            const btnShop = document.getElementById('btn-shop');
 
-        // Переключение экранов
-        function showScreen(screen) {
-            if (screen === 'game') {
-                document.getElementById('game-screen').style.display = 'flex';
-                document.getElementById('shop-screen').style.display = 'none';
+            if (tab === 'boss') {
+                game.style.display = 'contents';
+                shop.style.display = 'none';
+                btnBoss.classList.add('active');
+                btnShop.classList.remove('active');
             } else {
-                document.getElementById('game-screen').style.display = 'none';
-                document.getElementById('shop-screen').style.display = 'block';
+                game.style.display = 'none';
+                shop.style.display = 'block';
+                btnBoss.classList.remove('active');
+                btnShop.classList.add('active');
             }
-            
-            // Обновляем активную кнопку в меню
-            const btns = document.querySelectorAll('.nav-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
         }
     </script>
 </body>
