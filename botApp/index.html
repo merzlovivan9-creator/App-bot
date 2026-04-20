@@ -237,11 +237,7 @@
         }
 
         ghostBtn.addEventListener('click', (e) => {
-            ghostBtn.querySelector('img').classList.add('hit-flash');
-            setTimeout(() => {
-                ghostBtn.querySelector('img').classList.remove('hit-flash');
-            }, 100);
-            
+
             // 1. считаем урон
             let totalDamage = baseDamage * tempMultiplier;
             score += totalDamage;
@@ -261,6 +257,10 @@
                 bossCurrentHp = bossMaxHp;
                 alert("Босс повержен! Следующий уровень!");
             }
+            ghostBtn.querySelector('img').classList.add('hit-flash');
+            setTimeout(() => {
+                ghostBtn.querySelector('img').classList.remove('hit-flash');
+            }, 100);
 
             updateUI();
             if (tg && tg.HapticFeedBack)
