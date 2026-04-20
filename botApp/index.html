@@ -97,6 +97,26 @@
             background: #3e7a3e; box-shadow: 0 0 15px var(--accent-glow);
             border-color: #fff;
         }
+        .item-name {
+            font-size: 6px; /*маленький пиксельный шрифт*/
+            color: #1b3a1e; /* темно зеленый*/
+            margin: 5px 0 2px 0;
+            text-transform: uppercase;
+        }
+        .item-mult {
+            font-size: 8px;
+            font-weight: bold;
+            color: #d32f1f;
+            margin-bottom: 5px;
+        }
+        .price {
+            font-size: 5px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .price::after {
+            content: "🪙"; /* иконка монетки после цены*/
+        }
     </style>
 </head>
 <body>
@@ -112,8 +132,8 @@
             <div class="hp-bar"><div id="hp-fill"></div></div>
             <div class="hp-label">Здоровье</div>
         </div>
-    </div id="buff-status" style="height: 15px; margin-top: 10px; font-size: 10px; color: #00ff00; text-shadow: 1px 1px #000;
-    text-align: center;">
+    <div id="buff-status" style="height: 15px; margin-top: 10px; font-size: 10px; color: #00ff00; text-shadow: 1px 1px #000;
+    text-align: center;"></div>
 
         <div id="boss-container">
             <button id="ghost-btn">
@@ -149,22 +169,27 @@
 
         // Данные товаров (настрой как в Figma)
         const items = [
-            { id: 1, name: "Энергетик", price: 500, mult: 2, duration: 30, img: "potion_red.png" },
-            { id: 2, name: "Энергетик", price: 1000, mult: 3, duration: 30, img: "potion_red.png" },
-            { id: 3, name: "Энергетик", price: 1500, mult: 4, duration: 30, img: "potion_red.png" },
-            { id: 4, name: "Зелье силы", price: 5000, mult: 5, duration: 30, img: "item2.png" },
-            { id: 5, name: "Зелье силы", price: 6000, mult: 6, duration: 30, img: "item2.png" },
-            { id: 6, name: "Огромная сила", price: 10000, mult: 10, duration: 30, img: "potion_green.png" }
+            { id: 1, name: "Энергетик", price: 500, mult: 2, duration: 60, multText: "x2", img: "potion_red.png" },
+            { id: 2, name: "Энергетик", price: 750, mult: 3, duration: 50, multText: "x3", img: "potion_red.png" },
+            { id: 3, name: "Энергетик", price: 1000, mult: 4, duration: 30, multText: "x4", img: "potion_red.png" },
+            { id: 4, name: "Зелье силы", price: 2500, mult: 5, duration: 20, multText: "x5", img: "item2.png" },
+            { id: 5, name: "Зелье силы", price: 3000, mult: 6, duration: 20, multText: "x6", img: "item2.png" },
+            { id: 6, name: "Зелье силы", price: 5000, mult: 10, duration: 30, multText: "x10", img: "item2.png" },
+            { id: 7, name: "Огромная сила", price: 10000, mult: 50, duration: 20, multText: "x50", img: "potion_green.png" }
         ];
 
         // Рендер магазина
         const shopGrid = document.getElementById('shop-items');
+        shopGrid.innerHTML = ""; // Очищаем перед рендером
+
         items.forEach(item => {
             shopGrid.innerHTML += `
                 <div class="item-card">
-                    <img src="${item.img}" alt="">
-                    <div class="price">Купить за ${item.price}</div>
-                    <button onclick="buyItem(${item.price}, ${item.mult})">КУПИТЬ</button>
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-mult">${item.multText}</div>
+                    <div class="price">${item.price}</div>
+                    <button onclick="buyItem(${item.price}, ${item.mult}, ${item.duration})">КУПИТЬ</button>
                 </div>
             `;
         });
@@ -178,6 +203,7 @@
             let totalDamage = baseDamage * tempMultiplier;
             score += totalDamage;
             bossCurrentHp -= totalDamage;
+            updateUI();
             if (bossCurrentHp <= 0) {
                 bossMaxHp *= 2; bossCurrentHp = bossMaxHp;
             }
@@ -190,6 +216,8 @@
         function buyItem(price, mult, duration) {
             if (score >= price) {
                 score -= price;
+                updateUI(); // сразу обновляем счет на экране
+
                 // если есть активный таймер то убираем его
                 if (buffInterval) clearTimeout(buffInterval);
 
@@ -213,7 +241,8 @@
                 }, 1000);
 
                 updateUI();
-                alert("Зелье активировано!");
+                acttivateBuff(mult, duration);
+                console.log("Куплено: x" + mult);
             } else {
                 alert("Мало кликов!");
             }
