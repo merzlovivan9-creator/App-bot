@@ -120,6 +120,40 @@
         .price::after {
             content: "🪙"; /* иконка монетки после цены*/
         }
+        .particle {
+            position: fixed;
+            pointer-events: none; /* чтобы частицы не мешали кликать */
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            z-index: 1000;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .shake {
+            animation: shakeAnim 0.1s linear double;
+        }
+
+        @keyframes shakeAnim {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            25% { transform: translate(-2px, -1px) rotate(-1deg); }
+            50% { transform: translate(-1px, 2px) rotate(1deg); }
+            75% { transform: translate(2px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        .hit-flash {
+            filter: brightness(0.5) sepia(1) saturate(10000%) hue-rotate(-50deg);
+        }
     </style>
 </head>
 <body>
@@ -170,7 +204,7 @@
         let tempMultiplier = 1; // Временный множитель
         let buffTimer = null; // Переманная для хранения таймера
 
-        // Данные товаров (настрой как в Figma)
+        // Данные товаров 
         const items = [
             { id: 1, name: "Энергетик", price: 500, mult: 2, duration: 60, multText: "x2", img: "potion_red.png" },
             { id: 2, name: "Энергетик", price: 750, mult: 3, duration: 50, multText: "x3", img: "potion_red.png" },
@@ -202,17 +236,58 @@
             document.getElementById('hp-fill').style.width = (bossCurrentHp / bossMaxHp * 100) + "%";
         }
 
-        document.getElementById('ghost-btn').onclick = () => {
+        ghostBtn.addEventListener('click', (e) => {
+            ghostBtn.querySelector('img').classList.add('hit-flash');
+            setTimeout(() => {
+                ghostBtn.querySelector('img').classList.remove('hit-flash');
+            }, 100);
+            
+            // 1. считаем урон
             let totalDamage = baseDamage * tempMultiplier;
             score += totalDamage;
             bossCurrentHp -= totalDamage;
-            updateUI();
+
+            // 2. создаем эффект вылетающего текста и эмодзи
+            createParticle(e.clientX, e.clientY, `+${totalDamage} 🔥`);
+
+            // 3. эффект тряски босса
+            ghostBtn.classList.remove('shake'); // сбрасываем анимацию
+            void ghostBtn.offsetWidth;
+            ghostBtn.classList.add('shake'); // запускаем тряску
+
+            // 4. обновляем все остальное
             if (bossCurrentHp <= 0) {
-                bossMaxHp *= 2; bossCurrentHp = bossMaxHp;
+                bossMaxHp *= 2;
+                bossCurrentHp = bossMaxHp;
+                alert("Босс повержен! Следующий уровень!");
             }
+
             updateUI();
-            if (tg) tg.HapticFeedback.impactOccurred('medium');
-        };
+            if (tg && tg.HapticFeedBack)
+            tg.HapticFeedBack.impactOccurred('medium');
+        });
+
+        // функция для создания вылетающих элементов
+        function createParticle(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'particle';
+            el.innerText = text;
+
+            // позиционируем в месте клика
+            el.style.left = `${x - 20}px`;
+            el.style.top = `${y - 20}px`;
+
+            // цвет текста
+            el.style.color = '#FFD700';
+            el.style.textShadow = '2px 2px 0px #000';
+
+            document.body.appendChild(el);
+
+            // удаляем элемент из памяти после завершения анимации
+            setTimeout(() => {
+                el.remove();
+            }, 800);
+        }
 
         let buffInterval = null; // глобальная переменная для таймера
 
