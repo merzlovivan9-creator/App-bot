@@ -135,12 +135,12 @@
             let buffInterval = null;
 
             const items = [
-                { id: 1, name: "Энергетик", price: 10, mult: 2, duration: 60, img: "potion_red.png" },
-                { id: 2, name: "Энергетик", price: 10, mult: 3, duration: 40, img: "potion_red.png" },
-                { id: 3, name: "Энергетик", price: 10, mult: 4, duration: 30, img: "potion_red.png" },
-                { id: 4, name: "Зелье силы", price: 50, mult: 5, duration: 20, img: "item2.png" },
-                { id: 5, name: "Зелье силы", price: 50, mult: 10, duration: 20, img: "item2.png" },
-                { id: 6, name: "Мега Зелье", price: 100, mult: 50, duration: 15,img: "potion_red.png" }
+                { id: 1, name: "Энергетик", price: 100, mult: 2, duration: 60, img: "potion_red.png" },
+                { id: 2, name: "Энергетик", price: 200, mult: 3, duration: 40, img: "potion_red.png" },
+                { id: 3, name: "Энергетик", price: 500, mult: 4, duration: 30, img: "potion_red.png" },
+                { id: 4, name: "Зелье силы", price: 700, mult: 5, duration: 20, img: "item2.png" },
+                { id: 5, name: "Зелье силы", price: 1000, mult: 10, duration: 20, img: "item2.png" },
+                { id: 6, name: "Мега Зелье", price: 3500, mult: 50, duration: 15,img: "potion_green.png" }
             ];
 
             // Рендер магазина
@@ -153,6 +153,7 @@
                     <img src="${item.img}">
                     <div class="item-name">${item.name}</div>
                     <div class="item-mult">x${item.mult}</div>
+                    <div class="item-price">x${item.price}</div>
                     <button onclick="window.buyItem(${item.price}, ${item.mult}, ${item.duration})">Купить</button>
                 `;
                 shopGrid.appendChild(card);
@@ -173,7 +174,7 @@
                 // Эффект огня
                 const p = document.createElement('div');
                 p.className = 'particle';
-                p.innerText = `+${currentDamage} 🔥`;
+                p.innerText = `+${currentDamage}🔥`;
                 p.style.left = e.clientX + 'px';
                 p.style.top = e.clientY + 'px';
                 document.body.appendChild(p);
