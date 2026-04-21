@@ -23,29 +23,30 @@
             overflow: hidden; touch-action: manipulation;
         }
 
-        /* Заголовок счета */
+        /* Заголовок счета - БЕЗ РАМКИ */
         #header { margin-top: 40px; text-align: center; z-index: 5; }
-        .score-num { font-size: 32px; text-shadow: 3px 3px 0px #000; color: #fff; }
+        .score-label { font-size: 20px; text-shadow: 3px 3px 0px #000; }
+        .score-num { font-size: 28px; text-shadow: 3px 3px 0px #000; color: #FFD700; }
 
         /* Полоска здоровья */
-        .hp-container { width: 70%; margin-top: 10px; text-align: center; z-index: 5;}
-        .hp-bar { width: 100%; height: 8px; background: #333; border: 2px solid #000; position: relative; }
-        #hp-fill { width: 100%; height: 100%; background: #ff4500; transition: width 0.1s; }
-        .hp-label { font-size: 10px; margin-top: 5px; }
+        .hp-container { width: 70%; margin-top: 15px; text-align: center; z-index: 5;}
+        .hp-bar { width: 100%; height: 10px; background: #333; border: 2px solid #000; position: relative; }
+        #hp-fill { width: 100%; height: 100%; background: #ff4500; box-shadow: 0 0 10px #ff4500; transition: width 0.1s; }
+        .hp-label { font-size: 10px; margin-top: 8px; text-shadow: 1px 1px #000; }
 
         /* Текст усиления */
-        #buff-status { height: 15px; margin-top: 10px; font-size: 10px; color: #00ff00; }
+        #buff-status { height: 15px; margin-top: 10px; font-size: 10px; color: #00ff00; text-shadow: 1px 1px #000; }
 
         /* Босс */
         #boss-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        #ghost-btn { background: none; border: none; outline: none; cursor: pointer; }
-        #ghost-btn img { width: 75vw; max-width: 400px; transition: transform 0.05s; }
+        #ghost-btn { background: none; border: none; outline: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        #ghost-btn img { width: 75vw; max-width: 400px; filter: drop-shadow(0 0 15px rgba(0,0,0,0.7)); }
         
         /* Эффект тряски */
         .shake { animation: shakeAnim 0.1s linear; }
         @keyframes shakeAnim {
-            0% { transform: translate(2px, 2px); }
-            50% { transform: translate(-2px, -2px); }
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
             100% { transform: translate(0, 0); }
         }
 
@@ -64,28 +65,33 @@
         /* Магазин */
         #shop-screen {
             display: none; position: absolute; top: 80px; bottom: 120px;
-            width: 90%; background: rgba(13, 33, 13, 0.95);
+            width: 90%; background: rgba(13, 33, 13, 0.98);
             border: 3px solid var(--light-green); border-radius: 20px;
             padding: 15px; overflow-y: auto; z-index: 100;
         }
         .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .item-card { background: #e8f5e9; border-radius: 12px; padding: 8px; color: #1b3a1e; text-align: center; }
         .item-card img { width: 100%; max-width: 50px; }
-        .item-name { font-size: 6px; margin: 5px 0; }
-        .item-mult { font-size: 8px; color: #d32f2f; margin-bottom: 5px; }
-        .item-card button { background: #2d5a27; color: white; border: none; font-family: 'Press Start 2P'; font-size: 6px; padding: 5px; width: 100%; border-radius: 5px; }
+        .item-name { font-size: 6px; margin: 5px 0; font-weight: bold; }
+        .item-mult { font-size: 8px; color: #d32f2f; margin-bottom: 5px; font-weight: bold; }
+        .item-card button { background: #2d5a27; color: white; border: none; font-family: 'Press Start 2P'; font-size: 6px; padding: 8px 0; width: 100%; border-radius: 5px; cursor: pointer; }
 
-        /* Меню */
-        .nav-bar { position: fixed; bottom: 30px; display: flex; gap: 15px; z-index: 101; }
-        .nav-btn { background: #162b18; border: 1px solid #fff; color: white; padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 12px; border-radius: 15px; }
-        .nav-btn.active { background: #3e7a3e; }
+        /* Навигация с плашкой (как в Figma) */
+        .nav-bar { 
+            position: fixed; bottom: 30px; display: flex; gap: 15px; 
+            background: rgba(0, 30, 0, 0.8); padding: 12px 20px; 
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
+            z-index: 101; backdrop-filter: blur(5px);
+        }
+        .nav-btn { background: #162b18; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; border-radius: 12px; cursor: pointer; }
+        .nav-btn.active { background: #2d5a27; box-shadow: 0 0 10px var(--light-green); border-color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="game-screen" style="display: contents;">
         <div id="header">
-            <div class="score-num" id="score">0</div>
+            <div class="score-label">Кликов: <span class="score-num" id="score">0</span></div>
         </div>
 
         <div class="hp-container">
@@ -102,122 +108,131 @@
     </div>
 
     <div id="shop-screen">
+        <h3 style="text-align:center; font-size: 12px;">МАГАЗИН</h3>
         <div class="shop-grid" id="shop-items"></div>
     </div>
 
     <div class="nav-bar">
-        <button id="btn-boss" class="nav-btn active" onclick="switchTab('boss')">Босс</button>
-        <button id="btn-shop" class="nav-btn" onclick="switchTab('shop')">Магазин</button>
+        <button id="btn-boss" class="nav-btn active" onclick="switchTab('boss')">БОСС</button>
+        <button id="btn-shop" class="nav-btn" onclick="switchTab('shop')">МАГАЗИН</button>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        // Инициализация при загрузке страницы
+        window.onload = function() {
+            const tg = window.Telegram ? window.Telegram.WebApp : null;
+            if (tg) {
+                tg.expand();
+                tg.ready();
+            }
 
-        // Переменные
-        let score = 0;
-        let baseDamage = 1;
-        let tempMultiplier = 1;
-        let bossMaxHp = 100;
-        let bossCurrentHp = 100;
-        let buffInterval = null;
+            // Игровые переменные
+            let score = 0;
+            let baseDamage = 1;
+            let tempMultiplier = 1;
+            let bossMaxHp = 1000;
+            let bossCurrentHp = 1000;
+            let buffInterval = null;
 
-        const items = [
-            { id: 1, name: "Энергетик", price: 500, mult: 2, duration: 60, img: "potion_red.png" },
-            { id: 2, name: "Энергетик", price: 750, mult: 3, duration: 40, img: "potion_red.png" },
-            { id: 3, name: "Энергетик", price: 1000, mult: 4, duration: 30, img: "potion_red.png" },
-            { id: 4, name: "Зелье силы", price: 1500, mult: 5, duration: 20, img: "item2.png" },
-            { id: 5, name: "Зелье силы", price: 2000, mult: 10, duration: 20, img: "item2.png" },
-            { id: 6, name: "Мега Зелье", price: 5000, mult: 50, duration: 15, img: "potion_green.png" }
-        ];
+            const items = [
+                { id: 1, name: "Энергетик", price: 10, mult: 2, duration: 60, img: "potion_red.png" },
+                { id: 2, name: "Энергетик", price: 10, mult: 3, duration: 40, img: "potion_red.png" },
+                { id: 3, name: "Энергетик", price: 10, mult: 4, duration: 30, img: "potion_red.png" },
+                { id: 4, name: "Зелье силы", price: 50, mult: 5, duration: 20, img: "item2.png" },
+                { id: 5, name: "Зелье силы", price: 50, mult: 10, duration: 20, img: "item2.png" },
+                { id: 6, name: "Мега Зелье", price: 100, mult: 50, duration: 15,img: "potion_red.png" }
+            ];
 
-        // Рендер магазина
-        const shopGrid = document.getElementById('shop-items');
-        items.forEach(item => {
-            shopGrid.innerHTML += `
-                <div class="item-card">
+            // Рендер магазина
+            const shopGrid = document.getElementById('shop-items');
+            shopGrid.innerHTML = ""; // Очистка
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
                     <img src="${item.img}">
                     <div class="item-name">${item.name}</div>
                     <div class="item-mult">x${item.mult}</div>
-                    <button onclick="buyItem(${item.price}, ${item.mult}, ${item.duration})">${item.price}</button>
-                </div>
-            `;
-        });
+                    <button onclick="window.buyItem(${item.price}, ${item.mult}, ${item.duration})">Купить</button>
+                `;
+                shopGrid.appendChild(card);
+            });
 
-        function updateUI() {
-            document.getElementById('score').innerText = Math.floor(score);
-            const hpPercent = (bossCurrentHp / bossMaxHp) * 100;
-            document.getElementById('hp-fill').style.width = Math.max(0, hpPercent) + "%";
-        }
-
-        // Клик по боссу
-        document.getElementById('ghost-btn').addEventListener('click', (e) => {
-            const currentDamage = baseDamage * tempMultiplier;
-            score += currentDamage;
-            bossCurrentHp -= currentDamage;
-
-            // Эффекты
-            createParticle(e.clientX, e.clientY, `+${currentDamage} 🔥`);
-            
-            const img = document.getElementById('ghost-img');
-            img.classList.remove('shake');
-            void img.offsetWidth; 
-            img.classList.add('shake');
-
-            if (bossCurrentHp <= 0) {
-                bossMaxHp = Math.floor(bossMaxHp * 1.5);
-                bossCurrentHp = bossMaxHp;
+            function updateUI() {
+                document.getElementById('score').innerText = Math.floor(score);
+                const hpPercent = (bossCurrentHp / bossMaxHp) * 100;
+                document.getElementById('hp-fill').style.width = Math.max(0, hpPercent) + "%";
             }
+
+            // Клик по боссу
+            document.getElementById('ghost-btn').addEventListener('click', (e) => {
+                const currentDamage = baseDamage * tempMultiplier;
+                score += currentDamage;
+                bossCurrentHp -= currentDamage;
+
+                // Эффект огня
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerText = `+${currentDamage} 🔥`;
+                p.style.left = e.clientX + 'px';
+                p.style.top = e.clientY + 'px';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+                
+                // Тряска
+                const img = document.getElementById('ghost-img');
+                img.classList.remove('shake');
+                void img.offsetWidth; 
+                img.classList.add('shake');
+
+                // Проверка смерти босса
+                if (bossCurrentHp <= 0) {
+                    bossMaxHp = Math.floor(bossMaxHp * 1.5);
+                    bossCurrentHp = bossMaxHp;
+                }
+
+                updateUI();
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            });
+
+            // Делаем функции глобальными для onclick
+            window.buyItem = function(price, mult, duration) {
+                if (score >= price) {
+                    score -= price;
+                    if (buffInterval) clearInterval(buffInterval);
+                    
+                    tempMultiplier = mult;
+                    let timeLeft = duration;
+                    const status = document.getElementById('buff-status');
+                    
+                    status.innerText = `Усиление x${mult} (${timeLeft}с)`;
+                    buffInterval = setInterval(() => {
+                        timeLeft--;
+                        status.innerText = `Усиление x${mult} (${timeLeft}с)`;
+                        if (timeLeft <= 0) {
+                            clearInterval(buffInterval);
+                            tempMultiplier = 1;
+                            status.innerText = "";
+                        }
+                    }, 1000);
+                    
+                    updateUI();
+                    window.switchTab('boss');
+                } else {
+                    if (tg) tg.showAlert("Мало кликов!"); 
+                    else alert("Мало кликов!");
+                }
+            };
+
+            window.switchTab = function(tab) {
+                document.getElementById('game-screen').style.display = (tab === 'boss' ? 'contents' : 'none');
+                document.getElementById('shop-screen').style.display = (tab === 'shop' ? 'block' : 'none');
+                document.getElementById('btn-boss').classList.toggle('active', tab === 'boss');
+                document.getElementById('btn-shop').classList.toggle('active', tab === 'shop');
+            };
 
             updateUI();
-            tg.HapticFeedback.impactOccurred('medium');
-        });
-
-        function createParticle(x, y, text) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.innerText = text;
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 600);
-        }
-
-        function buyItem(price, mult, duration) {
-            if (score >= price) {
-                score -= price;
-                if (buffInterval) clearInterval(buffInterval);
-                
-                tempMultiplier = mult;
-                let timeLeft = duration;
-                const status = document.getElementById('buff-status');
-                
-                status.innerText = `Усиление x${mult} (${timeLeft}с)`;
-                buffInterval = setInterval(() => {
-                    timeLeft--;
-                    status.innerText = `Усиление x${mult} (${timeLeft}с)`;
-                    if (timeLeft <= 0) {
-                        clearInterval(buffInterval);
-                        tempMultiplier = 1;
-                        status.innerText = "";
-                    }
-                }, 1000);
-                
-                updateUI();
-                switchTab('boss');
-            } else {
-                tg.showAlert("Недостаточно кликов!");
-            }
-        }
-
-        function switchTab(tab) {
-            document.getElementById('game-screen').style.display = (tab === 'boss' ? 'contents' : 'none');
-            document.getElementById('shop-screen').style.display = (tab === 'shop' ? 'block' : 'none');
-            document.getElementById('btn-boss').classList.toggle('active', tab === 'boss');
-            document.getElementById('btn-shop').classList.toggle('active', tab === 'shop');
-        }
-
-        updateUI();
+        };
     </script>
 </body>
 </html>
